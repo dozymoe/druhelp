@@ -1,0 +1,45 @@
+<?php
+/**
+ * Drupal hooks and custom functions that help you do ...stuff.
+ *
+ * @author Fahri Reza <dozymoe@824484.no-reply.drupal.org>
+ * @copyright Copyright (c) 2013, Fahri Reza
+ */
+
+/**
+ * Implements hook_hook_info().
+ */
+function druhelp_hook_info() {
+  $hooks = array();
+  $entities_info = entity_get_info();
+
+  foreach ($entities_info as $entity_type => $entity_info) {
+    $bundle_names = array_keys($entity_info['bundles']);
+    $view_modes = array_keys($entity_info['view_modes']);
+
+    foreach ($bundle_names => $bundle_name) {
+      foreach ($view_modes as $view_mode) {
+        $hooks["preprocess_{$entity_type}_{$bundle_name}_{$view_mode}"] = array(
+          'group' => "{$entity_type}.{$bundle_name}",
+        );
+      }
+    }
+  }
+
+  return $hooks;
+}
+
+/**
+ * Implements hook_preprocess().
+ */
+function druhelp_preprocess(&$variables, $hook) {
+  if (isset($variables['elements']['#entity_type'])) {
+    $myhook = "{$variables['elements']['#entity_type']}_{$variables['elements']['#bundle']}_{$variables['elements']['#view_mode']}";
+    $modules = module_implements("preprocess_{$myhook}");
+
+    foreach ($modules as $module) {
+      $function = "{$module}_preprocess_{$myhook}";
+      $function($variables, $myhook);
+    }
+  }
+}
