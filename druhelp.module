@@ -15,9 +15,9 @@ function druhelp_hook_info() {
 
   foreach ($entities_info as $entity_type => $entity_info) {
     $bundle_names = array_keys($entity_info['bundles']);
-    $view_modes = array_keys($entity_info['view_modes']);
+    $view_modes = array_keys($entity_info['view modes']);
 
-    foreach ($bundle_names => $bundle_name) {
+    foreach ($bundle_names as $bundle_name) {
       foreach ($view_modes as $view_mode) {
         $hooks["preprocess_{$entity_type}_{$bundle_name}_{$view_mode}"] = array(
           'group' => "{$entity_type}.{$bundle_name}",
@@ -33,7 +33,7 @@ function druhelp_hook_info() {
  * Implements hook_preprocess().
  */
 function druhelp_preprocess(&$variables, $hook) {
-  if (isset($variables['elements']['#entity_type'])) {
+  if (isset($variables['elements']['#entity_type']) && isset($variables['elements']['#view_mode'])) {
     $myhook = "{$variables['elements']['#entity_type']}_{$variables['elements']['#bundle']}_{$variables['elements']['#view_mode']}";
     $modules = module_implements("preprocess_{$myhook}");
 
